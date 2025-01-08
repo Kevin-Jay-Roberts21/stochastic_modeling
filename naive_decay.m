@@ -8,7 +8,7 @@ clc
 
 k = 5; % (1/s) death rate
 dt = 0.001; % (s) time step
-total_time = 1; % (s) total time
+total_time = 2; % (s) total time
 n = total_time/dt + 1; % number of time steps (plus 1 because we don't count the first)
 A_initial = 50; % (initial population) 
 

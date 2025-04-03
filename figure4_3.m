@@ -6,66 +6,82 @@ clear all
 close all
 clc
 
-% creating the initial conditions and rates
-kv1 = ;
-kv2 = ;
-kv3 = ;
-kv4 = ;
-d = 0.16; % (1/s)
-K = 40; % number of compartments
+D = 0.0001; % (mm^2/sec) diffusion constant
+h = 0.025; % (mm) space step
 
-
-A_1 = 0;
-A_2 = 0;
-A_3 = 0;
-A_4 = 0;
-A_5 = 0;
-A_6 = 0;
-A_7 = 0;
-A_8 = 0;
-A_9 = 0;
-A_10 = 0;
-A_11 = 0;
-A_12 = 0;
-A_13 = 0;
-A_14 = 0;
-A_15 = 0;
-A_16 = 500;
-A_17 = 500;
-
-list_of_As = {A_1 , A_2, A_3, A_4, A_5, A_6, A_7, A_8, A_8, A_9, A_10, A_11, A_12, A_13, A_14, A_15, A_16, A_17}
-
-A_s = zeros(1, 40);
-
-A_s(16) = 500;
-A_s(17) = 500;
+d = D/h^2; % (1/s) same as D/h^2
+K = 40; % loop count (number of compartments)
+X_0 = 0.4; % creating a random value to start with (could be anything)
 
 % running the time loop
-for k = 1:100
-    r1 = rand;
-    r2 = rand;
+for i = 1:K
     
-    alpha_0 = 2*d*K;
-    
-    tau = 1/alpha_0 * log(1/r1);
-    
-    sum = sum(A_s)/alpha_0;
-
-    if r2 < sum
-    
-        
-        
-    else
-        
-    
+    if (i <= K/2)
+        X = X_0 - h/2;
+    else 
+        X = X_0 + h/2;
     end
     
+    total_time = 0;
+    k = 1;
+    A_plot(i, k) = X; % (in mm)  columns represent time, rows represent corresponding position for a certain A
+    time_plot(i, k) = total_time; % (in sec) columns represent time, rows represent discrete time for a certain A
     
-    
-    
-    % compute propensity function
-    alpha_0 = 2 * d; 
-    
-
-
+    while (k < 320) % 320 is arbitrary total time, could go for longer
+        
+        % creating random numbers
+        r1 = rand;
+        r2 = rand;
+        
+        % defining alpha_0 and tau
+        alpha_0 = 2 * d;
+        tau = 1/alpha_0 * log(1/r1);
+        
+        % updating the time
+        total_time = total_time + tau;
+        
+        
+        if (r2*alpha_0 < d) % move to the right
+            X = X - h;
+        else % move to the left
+            X = X + h;
+        end
+        
+        % applying boundary situations
+        if (X < 0)
+            X = h/2; 
+        end
+        
+        if (X > 1)
+            X = 1 - h/2;
+        end
+        
+        % updating k and A_plot, time_plot vectors
+        k = k + 1;
+        A_plot(i, k) = X;
+        time_plot(i, k) = total_time;
+    end
 end
+
+% converting the time plot to be in minutes
+time_plot=time_plot/60;
+
+% plotting all the data
+figure(1);
+for i = 1:K
+    plot = stairs(A_plot(i,:), time_plot(i,:));
+    hold on
+end
+
+xlabel('$x$ [mm]','interpreter','latex');
+ylabel('time [min]','interpreter','latex');
+set(gca,'XTick',[0 0.2 0.4 0.6 0.8 1]);
+set(gca,'YTick',[0 2 4 6 8 10 12 14]);
+axis([0 1 0 14]);
+    
+    
+    
+    
+    
+    
+    
